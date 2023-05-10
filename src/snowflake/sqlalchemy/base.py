@@ -17,7 +17,6 @@ from sqlalchemy.sql import compiler, expression
 from sqlalchemy.sql.base import CompileState
 from sqlalchemy.sql.elements import quoted_name
 from sqlalchemy.sql.selectable import Lateral, SelectState
-from sqlalchemy.util.compat import string_types
 
 from .custom_commands import AWSBucket, AzureContainer, ExternalStage
 from .util import (
@@ -112,7 +111,7 @@ https://docs.snowflake.com/en/release-notes/bcr-bundles/2023_04/bcr-1057
 @CompileState.plugin_for("default", "select")
 class SnowflakeSelectState(SelectState):
     def _setup_joins(self, args, raw_columns):
-        for (right, onclause, left, flags) in args:
+        for right, onclause, left, flags in args:
             isouter = flags["isouter"]
             full = flags["full"]
 
@@ -183,7 +182,6 @@ class SnowflakeSelectState(SelectState):
                     [element._from_objects for element in statement._where_criteria]
                 ),
             ):
-
                 potential[from_clause] = ()
 
             all_clauses = list(potential.keys())
@@ -632,7 +630,7 @@ class SnowflakeCompiler(compiler.SQLCompiler):
             encryption_list.sort(key=operator.itemgetter(0))
         encryption = "ENCRYPTION=({})".format(
             " ".join(
-                ("{}='{}'" if isinstance(v, string_types) else "{}={}").format(n, v)
+                ("{}='{}'" if isinstance(v, str) else "{}={}").format(n, v)
                 for n, v in encryption_list
             )
         )
@@ -657,7 +655,7 @@ class SnowflakeCompiler(compiler.SQLCompiler):
             encryption_list.sort(key=operator.itemgetter(0))
         encryption = "ENCRYPTION=({})".format(
             " ".join(
-                f"{n}='{v}'" if isinstance(v, string_types) else f"{n}={v}"
+                f"{n}='{v}'" if isinstance(v, str) else f"{n}={v}"
                 for n, v in encryption_list
             )
         )
