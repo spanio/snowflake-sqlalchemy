@@ -7,14 +7,13 @@ import operator
 import re
 
 from sqlalchemy import exc as sa_exc
-from sqlalchemy import inspect, sql
+from sqlalchemy import inspect
 from sqlalchemy import util as sa_util
 from sqlalchemy.engine import default
 from sqlalchemy.orm import context
 from sqlalchemy.orm.context import _MapperEntity
 from sqlalchemy.schema import Sequence, Table
 from sqlalchemy.sql import compiler, expression
-from sqlalchemy.sql.base import CompileState
 from sqlalchemy.sql.elements import quoted_name
 from sqlalchemy.sql.selectable import Lateral, SelectState
 
@@ -108,7 +107,6 @@ https://docs.snowflake.com/en/release-notes/bcr-bundles/2023_04/bcr-1057
 
 
 # handle Snowflake BCR bcr-1057
-@CompileState.plugin_for("default", "select")
 class SnowflakeSelectState(SelectState):
     def _setup_joins(self, args, raw_columns):
         for right, onclause, left, flags in args:
@@ -212,7 +210,6 @@ class SnowflakeSelectState(SelectState):
 
 
 # handle Snowflake BCR bcr-1057
-@sql.base.CompileState.plugin_for("orm", "select")
 class SnowflakeORMSelectCompileState(context.ORMSelectCompileState):
     def _join_determine_implicit_left_side(
         self, entities_collection, left, right, onclause
